@@ -7,17 +7,18 @@ of the `Pushover Notification Service`_ as documented here__.
 Installation
 ------------
 
-You can install python-pushover from Pypi_ with:
+You can install python-pushover(old version) from Pypi_ with:
 
 .. code-block:: bash
 
     $ pip install python-pushover
 
-Or you can install it directly from GitHub_:
+Or you can install it(newer version) directly from GitHub_:
 
 .. code-block:: bash
 
-    git clone https://github.com/Thibauth/python-pushover.git
+    not good: git clone https://github.com/Thibauth/python-pushover.git or
+    tested:   git clone https://github.com/selay01/python-pushover.git
     cd python-pushover
     pip install .
 
@@ -26,27 +27,26 @@ Or you can install it directly from GitHub_:
 
 Overview
 --------
-
-After being imported, the module must be initialized by calling the ``init``
-function with a valid application token. Thus, a typical use of the
-``pushover`` module looks like this:
-
-.. code-block:: python
-
-    from pushover import init, Client
-
-    init("<token>")
-    Client("<user-key>").send_message("Hello!", title="Hello")
-
-You can also pass the ``api_token`` optional argument to ``Client`` to
-initialize the module at the same time:
+You can pass the ``token`` argument to ``Client`` to initialize the module,
+and then the ``user`` argument when it need:
 
 .. code-block:: python
 
     from pushover import Client
 
-    client = Client("<user-key>", api_token="<api-token>")
-    client.send_message("Hello!", title="Hello")
+    client = Client("<api-token>")
+    client.message("Hello!", "<user-key>", title="Hello")
+
+
+You can also pass the ``token`` argument and the ``user`` optional argument 
+to ``Client`` to initialize the module at the same time:
+
+.. code-block:: python
+
+    from pushover import Client
+
+    client = Client("<api-token>", "<user-key>")
+    client.message("Hello!", title="Hello")
 
 Attachments can be sent with the ``attachment`` parameter which takes as
 argument as file object:
@@ -54,7 +54,7 @@ argument as file object:
 .. code-block:: python
 
     with open('/path/to/my/image.png', 'rb') as image:
-        client.send_message('Message with image', attachment=image)
+        client.message('Message with image', attachment=image)
 
 Command line
 ~~~~~~~~~~~~
@@ -64,7 +64,7 @@ you can use as follows:
 
 .. code-block:: bash
 
-    pushover --api-token <api-token> --user-key <user-key> "Hello!"
+    pushover --token <api-token> --user <user-key> "Hello,there"
 
 Use ``pushover --help`` to see the list of available options.
 
@@ -100,7 +100,7 @@ by simply doing:
 
     from pushover import Client
 
-    Client().send_message("Hello!", title="Hello")
+    Client().message("Hello!", title="Hello")
 
 or ``pushover --title "Hello" "Hello!"`` from the command line.
 
