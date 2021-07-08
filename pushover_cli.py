@@ -90,8 +90,8 @@ There is NO WARRANTY, to the extent permitted by law.""",
     token = args.token or params["token"]
 
     Pushover(token).message(
-        user_key,
         args.message,
+        user_key,
         device=device,
         title=args.title,
         priority=args.priority,

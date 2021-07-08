@@ -83,7 +83,7 @@ class MessageRequest(Request):
         if payload.get("priority", 0) == 2:
             self.url = RECEIPT_URL + self.answer["receipt"]
             self.status["done"] = False
-            for param, when in MessageRequest.params.iteritems():
+            for param, when in MessageRequest.params.items():
                 self.status[param] = False
                 self.status[when] = 0
 
@@ -108,7 +108,7 @@ class MessageRequest(Request):
         """
         if not self.status["done"]:
             r = Request("get", self.url + ".json", {"token": self.payload["token"]})
-            for param, when in MessageRequest.params.iteritems():
+            for param, when in MessageRequest.params.items():
                 self.status[param] = bool(r.answer[param])
                 self.status[when] = int(r.answer[when])
             for param in ["acknowledged_by", "acknowledged_by_device"]:
@@ -156,8 +156,10 @@ class Pushover(object):
     ]
     glance_keywords = ["title", "text", "subtext", "count", "percent", "device"]
 
-    def __init__(self, token):
+    def __init__(self, token, user=None):
         self.token = token
+        if user:
+            self.user = user
 
     @property
     def sounds(self):
@@ -169,11 +171,13 @@ class Pushover(object):
             Pushover._SOUNDS = request.answer["sounds"]
         return Pushover._SOUNDS
 
-    def verify(self, user, device=None):
+    def verify(self, user=None, device=None):
         """Verify that the `user` and optional `device` exist. Returns
         `None` when the user/device does not exist or a list of the user's
         devices otherwise.
         """
+        if user == None:
+            user = self.user
         payload = {"user": user, "token": self.token}
         if device:
             payload["device"] = device
@@ -184,7 +188,7 @@ class Pushover(object):
         else:
             return request.answer["devices"]
 
-    def message(self, user, message, **kwargs):
+    def message(self, message, user=None, **kwargs):
         """Send `message` to the user specified by `user`. It is possible
         to specify additional properties of the message by passing keyword
         arguments. The list of valid keywords is ``title, priority, sound,
@@ -199,9 +203,10 @@ class Pushover(object):
 
         This method returns a :class:`MessageRequest` object.
         """
-
+        if user == None:
+            user = self.user
         payload = {"message": message, "user": user, "token": self.token}
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             if key not in Pushover.message_keywords:
                 raise ValueError("{0}: invalid message parameter".format(key))
             elif key == "timestamp" and value is True:
@@ -213,7 +218,7 @@ class Pushover(object):
 
         return MessageRequest(payload)
 
-    def glance(self, user, **kwargs):
+    def glance(self, user=None, **kwargs):
         """Send a glance to the user. The default property is ``text``, as this
         is used on most glances, however a valid glance does not need to
         require text and can be constructed using any combination of valid
@@ -223,12 +228,18 @@ class Pushover(object):
 
         This method returns a :class:`GlanceRequest` object.
         """
+        if user == None:
+            user = self.user
         payload = {"user": user, "token": self.token}
 
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             if key not in Pushover.glance_keywords:
                 raise ValueError("{0}: invalid glance parameter".format(key))
             else:
                 payload[key] = value
 
         return Request("post", GLANCE_URL, payload)
+
+
+Client = Pushover
+
